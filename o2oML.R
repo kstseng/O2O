@@ -51,10 +51,20 @@ opty2015Use$ExpectedCloseDate <- as.Date(opty2015Use$ExpectedCloseDate)
 ExpectedClose.Create_diff <- as.numeric(opty2012Use$ExpectedCloseDate - opty2012Use$CreateDate)
 opty2012UseAdd <- cbind(opty2012Use, ExpectedClose.Create_diff = ExpectedClose.Create_diff)
 opty2012UseAddP <- opty2012UseAdd[-which(opty2012UseAdd$ExpectedClose.Create_diff < 0), ]
+WonLose <- 0
+for(i in 1:nrow(opty2012UseAddP)){
+  print(i/nrow(opty2012UseAddP))
+  if (opty2012UseAddP$Opportunity[i] == 100){
+    WonLose[i] <- 1
+  }else{
+    WonLose[i] <- 0
+  }
+}
+opty2012Final <- cbind(opty2012UseAddP, WonLose = as.factor(WonLose))
 
-
-
-
+#####################
+#####################
+#####################
 testdata <- opty2012Use
 tmp <- which(testdata$ExpectedCloseDate - testdata$CreateDate < 0)
 testdata[tmp, "Opportunity"]
