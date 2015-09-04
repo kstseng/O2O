@@ -1,1 +1,82 @@
-opty2012 <- read.csv("C:\\Users\\David79.Tseng\\Dropbox\\HomeOffice\\O2O\\2012Opty.csv")
+#########################################################################################################################
+##                                                                                                                     ##
+## read data                                                                                                           ##
+##                                                                                                                     ##
+#########################################################################################################################
+opty2012 <- read.csv("C:\\Users\\David79.Tseng\\Dropbox\\HomeOffice\\O2O\\2012Opty.csv", header = T)
+opty2013 <- read.csv("C:\\Users\\David79.Tseng\\Dropbox\\HomeOffice\\O2O\\2013Opty.csv", header = T)
+opty2014 <- read.csv("C:\\Users\\David79.Tseng\\Dropbox\\HomeOffice\\O2O\\2014Opty.csv", header = T)
+opty2015 <- read.csv("C:\\Users\\David79.Tseng\\Dropbox\\HomeOffice\\O2O\\2015Opty.csv", header = T)
+newColnames <- c("RBU", "GlobalSector", "Sales", "SalesForce", "Account", "TotalRevenueUSD", 
+                 "TotalRevenue", "Currency", "ProjectName", "OpportunityMethodology", "OpportunityStatus", "Opportunity", 
+                 "OpportunityID", "ReasonOfWL", "CreateDate", "ActualCloseDate", "ActualClose.Create_diff", "ExpectedCloseDate")
+colnames(opty2012) <- colnames(opty2013) <- colnames(opty2014) <- colnames(opty2015) <- newColnames
+
+#########################################################################################################################
+##                                                                                                                     ##
+## processing data                                                                                                     ##
+##                                                                                                                     ##  
+#########################################################################################################################
+
+## extract the columns
+UseCol <- c("RBU", "GlobalSector", "SalesForce", "TotalRevenueUSD", "Currency", 
+            "OpportunityMethodology", "Opportunity", 
+            "CreateDate", "ActualCloseDate", "ActualClose.Create_diff", "ExpectedCloseDate")
+opty2012Use <- opty2012[, UseCol]
+opty2013Use <- opty2013[, UseCol]
+opty2014Use <- opty2014[, UseCol]
+opty2015Use <- opty2015[, UseCol]
+
+## Turn TotalRevenueUSD to numeric
+opty2012Use$TotalRevenueUSD <- as.numeric(opty2012Use$TotalRevenueUSD)
+opty2013Use$TotalRevenueUSD <- as.numeric(opty2013Use$TotalRevenueUSD)
+opty2014Use$TotalRevenueUSD <- as.numeric(opty2014Use$TotalRevenueUSD)
+opty2015Use$TotalRevenueUSD <- as.numeric(opty2015Use$TotalRevenueUSD)
+
+## date form transform
+opty2012Use$CreateDate <- as.Date(opty2012Use$CreateDate)
+opty2012Use$ActualCloseDate <- as.Date(opty2012Use$ActualCloseDate)
+opty2012Use$ExpectedCloseDate <- as.Date(opty2012Use$ExpectedCloseDate)
+opty2013Use$CreateDate <- as.Date(opty2013Use$CreateDate)
+opty2013Use$ActualCloseDate <- as.Date(opty2013Use$ActualCloseDate)
+opty2013Use$ExpectedCloseDate <- as.Date(opty2013Use$ExpectedCloseDate)
+opty2014Use$CreateDate <- as.Date(opty2014Use$CreateDate)
+opty2014Use$ActualCloseDate <- as.Date(opty2014Use$ActualCloseDate)
+opty2014Use$ExpectedCloseDate <- as.Date(opty2014Use$ExpectedCloseDate)
+opty2015Use$CreateDate <- as.Date(opty2015Use$CreateDate)
+opty2015Use$ActualCloseDate <- as.Date(opty2015Use$ActualCloseDate)
+opty2015Use$ExpectedCloseDate <- as.Date(opty2015Use$ExpectedCloseDate)
+
+## add new variable to opty201xUse
+ExpectedClose.Create_diff <- as.numeric(opty2012Use$ExpectedCloseDate - opty2012Use$CreateDate)
+opty2012UseAdd <- cbind(opty2012Use, ExpectedClose.Create_diff = ExpectedClose.Create_diff)
+opty2012UseAddP <- opty2012UseAdd[-which(opty2012UseAdd$ExpectedClose.Create_diff < 0), ]
+
+
+
+
+testdata <- opty2012Use
+tmp <- which(testdata$ExpectedCloseDate - testdata$CreateDate < 0)
+testdata[tmp, "Opportunity"]
+head(testdata[tmp, ], 10)
+length(which(testdata[tmp, "Opportunity"] == 100))/length(testdata[tmp, "Opportunity"])
+length(tmp)
+
+
+##
+str(opty2012Use)
+tmp <- (which(opty2012Use$ActualCloseDate - opty2012Use$CreateDate == 0))
+opty2012Use[tmp[1:10], ]
+
+opty2012Use$OpportunityMethodology
+
+length((which(opty2012Use$ExpectedCloseDate - opty2012Use$CreateDate < 0)))
+length((which(opty2013Use$ExpectedCloseDate - opty2013Use$CreateDate < 0)))
+length((which(opty2014Use$ExpectedCloseDate - opty2014Use$CreateDate < 0)))
+length((which(opty2015Use$ExpectedCloseDate - opty2015Use$CreateDate < 0)))
+
+length(which(opty2012Use$ExpectedCloseDate == opty2012Use$ActualCloseDate))
+
+
+
+
