@@ -48,23 +48,66 @@ opty2015Use$ActualCloseDate <- as.Date(opty2015Use$ActualCloseDate)
 opty2015Use$ExpectedCloseDate <- as.Date(opty2015Use$ExpectedCloseDate)
 
 ## add new variable to opty201xUse
-ExpectedClose.Create_diff <- as.numeric(opty2012Use$ExpectedCloseDate - opty2012Use$CreateDate)
-opty2012UseAdd <- cbind(opty2012Use, ExpectedClose.Create_diff = ExpectedClose.Create_diff)
-opty2012UseAddP <- opty2012UseAdd[-which(opty2012UseAdd$ExpectedClose.Create_diff < 0), ]
+dataForUse <- rbind(opty2012Use, opty2013Use)
+ExpectedClose.Create_diff <- as.numeric(dataForUse$ExpectedCloseDate - dataForUse$CreateDate)
+dataForUseAdd <- cbind(dataForUse, ExpectedClose.Create_diff = ExpectedClose.Create_diff)
+dataForUseAddP <- dataForUseAdd[-which(dataForUseAdd$ExpectedClose.Create_diff < 0), ]
 WonLose <- 0
-for(i in 1:nrow(opty2012UseAddP)){
-  print(i/nrow(opty2012UseAddP))
-  if (opty2012UseAddP$Opportunity[i] == 100){
+for(i in 1:nrow(dataForUseAddP)){
+  print(i/nrow(dataForUseAddP))
+  if (dataForUseAddP$Opportunity[i] == 100){
     WonLose[i] <- 1
   }else{
     WonLose[i] <- 0
   }
 }
-opty2012Final <- cbind(opty2012UseAddP, WonLose = as.factor(WonLose))
+dataForUseFinal <- cbind(dataForUseAddP, WonLose = as.factor(WonLose))
+useX <- c("RBU", "GlobalSector", "SalesForce", "TotalRevenueUSD", "OpportunityMethodology", "ExpectedClose.Create_diff", "WonLose")
+dataForUseFinalForModel <- dataForUseFinal[, useX]
+#########################################################################################################################
+##                                                                                                                     ##
+## Cross Validation data
+##                                                                                                                     ##  
+#########################################################################################################################
+datCV <- opty2014Use
+ExpectedClose.Create_diff <- as.numeric(datCV$ExpectedCloseDate - datCV$CreateDate)
+datCVAdd <- cbind(datCV, ExpectedClose.Create_diff = ExpectedClose.Create_diff)
+datCVAddP <- datCVAdd[-which(datCVAdd$ExpectedClose.Create_diff < 0), ]
+WonLose <- 0
+for(i in 1:nrow(datCVAddP)){
+  print(i/nrow(datCVAddP))
+  if (datCVAddP$Opportunity[i] == 100){
+    WonLose[i] <- 1
+  }else{
+    WonLose[i] <- 0
+  }
+}
+datCVAddPFinal <- cbind(datCVAddP, WonLose = as.factor(WonLose))
+datCVAddPFinalForModel <- datCVAddPFinal[, useX]
+#########################################################################################################################
+##                                                                                                                     ##
+## Compare training data and cv data
+##                                                                                                                     ##  
+#########################################################################################################################
+# str(dataForUseFinal)
+# str(datCVAddPFinal)
+# table(dataForUseFinal$RBU)
+# table(datCVAddPFinal$RBU)
+# table(dataForUseFinal$GlobalSector)
+# table(datCVAddPFinal$GlobalSector)
 
-#####################
-#####################
-#####################
+remove.ind <- which(datCVAddPFinalForModel$RBU == "iConnectivity")
+datCVAddPFinalForModel.remind <- datCVAddPFinalForModel[-remove.ind, ]
+datCVAddPFinalForModel.remind$RBU <- as.factor(as.character(datCVAddPFinalForModel.remind$RBU))
+datCVAddPFinalForModel.remind$GlobalSector <- as.factor(as.character(datCVAddPFinalForModel.remind$GlobalSector))
+
+levels(datCVAddPFinalForModel.remind$RBU) <- levels(dataForUseFinalForModel$RBU)
+levels(datCVAddPFinalForModel.remind$GlobalSector) <- levels(dataForUseFinalForModel$GlobalSector)
+####
+####
+####
+####
+####
 testdata <- opty2012Use
 tmp <- which(testdata$ExpectedCloseDate - testdata$CreateDate < 0)
 testdata[tmp, "Opportunity"]
