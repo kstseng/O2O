@@ -61,3 +61,22 @@ fit1 <- HoltWinters(booking.ts, beta=FALSE, gamma=FALSE)
 fit2 <- HoltWinters(booking.ts, gamma=FALSE)
 # triple exponential - models level, trend, and seasonal components
 fit3 <- HoltWinters(booking.ts)
+
+###############################################################################################################
+##
+## auto.arima
+##
+###############################################################################################################
+range <- c(1:30)
+test <- as.numeric(bookingNumberByMonth)[range]
+test.ts <- ts(test, frequency = 12, start = c(2012,1))
+test.autoArima <- auto.arima(test.ts)
+fcst.test <- forecast(test.autoArima, h = 44 - max(range))
+as.numeric(fcst.test$mean)/as.numeric(bookingNumberByMonth)[(max(range) + 1):44]
+plot(c(test, as.numeric(fcst.test$mean)), col = "red", type = "l")
+lines(as.numeric(bookingNumberByMonth), col = "blue")
+#
+booking.autoArima <- auto.arima(booking.ts)
+plot(forecast(booking.autoArima, h = 12))
+forecast(booking.autoArima, h = 10)
+
